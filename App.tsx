@@ -1,118 +1,108 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
+import React, {Component} from 'react';
+import NavigationService from './src/services/NavigationService';
+import {View, StyleSheet, Alert, TouchableOpacity, Image, Text} from 'react-native';
+import { RNCamera } from 'react-native-camera';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+interface AppProps {
+  componentId?: string;
+}
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default class App extends Component<AppProps> {
+  constructor(props) {
+    super(props);
+    this.handleTourch = this.handleTourch.bind(this);
+    this.state = {
+      torchOn: false,
+    };
+  }
+  onBarCodeRead = (e) => {
+    Alert.alert('Barcode value is' + e.data, 'Barcode type is' + e.type);
+  };
+  render() {
+    return (
+      <View style={styles.container}>
+        <RNCamera
+          style={styles.preview}
+          flashMode={
+            this.state.torchOn
+              ? RNCamera.Constants.FlashMode.on
+              : RNCamera.Constants.FlashMode.off
+          }
+          onBarCodeRead={this.onBarCodeRead}
+          captureAudio
+          ref={(cam) => (this.camera = cam)}>
+          <Text
+            style={{
+              backgroundColor: 'white',
+            }}>
+            BARCODE SCANNER
+          </Text>
+        </RNCamera>
+        <View style={styles.bottomOverlay}>
+          <TouchableOpacity
+            onPress={() => this.handleTourch(this.state.torchOn)}>
+            <Image style={styles.cameraIcon} source={{uri: ''}} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+  handleTourch(value) {
+    if (value === true) {
+      this.setState({torchOn: false});
+    } else {
+      this.setState({torchOn: true});
+    }
+  }
 
-declare const global: {HermesInternal: null | {}};
-
-const App = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.tsx</Text> to change
-                this screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+  // render() {
+  //   return (<View style={styles.container}>
+  //     <RNCamera
+  //       style={styles.preview}
+  //       type={RNCamera.Constants.Type.back}
+  //       flashMode={RNCamera.Constants.FlashMode.on}
+  //       androidCameraPermissionOptions={{
+  //         title: 'Permission to use camera',
+  //         message: 'We need your permission to use your camera',
+  //         buttonPositive: 'Ok',
+  //         buttonNegative: 'Cancel',
+  //       }}
+  //       androidRecordAudioPermissionOptions={{
+  //         title: 'Permission to use audio recording',
+  //         message: 'We need your permission to use your audio',
+  //         buttonPositive: 'Ok',
+  //         buttonNegative: 'Cancel',
+  //       }}
+  //     />
+  //   </View>);
+  //}
+}
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+    flexDirection: 'row',
   },
-  engine: {
+  preview: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: 'red',
+  },
+  cameraIcon: {
+    margin: 5,
+    height: 40,
+    width: 40,
+  },
+  bottomOverlay: {
     position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+    width: '100%',
+    flex: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
-
-export default App;
