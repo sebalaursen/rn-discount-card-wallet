@@ -1,81 +1,41 @@
 import React, {Component} from 'react';
 import NavigationService from './src/services/NavigationService';
-import {View, StyleSheet, Alert, TouchableOpacity, Image, Text} from 'react-native';
-import { RNCamera } from 'react-native-camera';
+import {View, StyleSheet} from 'react-native';
+import {RNCamera} from 'react-native-camera';
+import Barcode from 'react-native-barcode-builder';
 
 interface AppProps {
   componentId?: string;
 }
 
 export default class App extends Component<AppProps> {
-  constructor(props) {
-    super(props);
-    this.handleTourch = this.handleTourch.bind(this);
-    this.state = {
-      torchOn: false,
-    };
-  }
-  onBarCodeRead = (e) => {
-    Alert.alert('Barcode value is' + e.data, 'Barcode type is' + e.type);
+  async componentDidMount() {}
+
+  private readonly load = async () => {
+    NavigationService.shared.push({
+      component: {
+        name: 'Test',
+        options: {
+          topBar: {
+            visible: true,
+            noBorder: true,
+            backButton: {
+              showTitle: false,
+              color: '#383838',
+            },
+          },
+        },
+      },
+    });
   };
+
   render() {
     return (
       <View style={styles.container}>
-        <RNCamera
-          style={styles.preview}
-          flashMode={
-            this.state.torchOn
-              ? RNCamera.Constants.FlashMode.on
-              : RNCamera.Constants.FlashMode.off
-          }
-          onBarCodeRead={this.onBarCodeRead}
-          captureAudio
-          ref={(cam) => (this.camera = cam)}>
-          <Text
-            style={{
-              backgroundColor: 'white',
-            }}>
-            BARCODE SCANNER
-          </Text>
-        </RNCamera>
-        <View style={styles.bottomOverlay}>
-          <TouchableOpacity
-            onPress={() => this.handleTourch(this.state.torchOn)}>
-            <Image style={styles.cameraIcon} source={{uri: ''}} />
-          </TouchableOpacity>
-        </View>
+        <Barcode value="Hello World" format="CODE128" />
       </View>
     );
   }
-  handleTourch(value) {
-    if (value === true) {
-      this.setState({torchOn: false});
-    } else {
-      this.setState({torchOn: true});
-    }
-  }
-
-  // render() {
-  //   return (<View style={styles.container}>
-  //     <RNCamera
-  //       style={styles.preview}
-  //       type={RNCamera.Constants.Type.back}
-  //       flashMode={RNCamera.Constants.FlashMode.on}
-  //       androidCameraPermissionOptions={{
-  //         title: 'Permission to use camera',
-  //         message: 'We need your permission to use your camera',
-  //         buttonPositive: 'Ok',
-  //         buttonNegative: 'Cancel',
-  //       }}
-  //       androidRecordAudioPermissionOptions={{
-  //         title: 'Permission to use audio recording',
-  //         message: 'We need your permission to use your audio',
-  //         buttonPositive: 'Ok',
-  //         buttonNegative: 'Cancel',
-  //       }}
-  //     />
-  //   </View>);
-  //}
 }
 
 const styles = StyleSheet.create({

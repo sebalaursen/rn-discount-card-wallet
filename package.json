@@ -10,8 +10,10 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@react-native-community/art": "^1.2.0",
     "react": "16.11.0",
     "react-native": "0.62.2",
+    "react-native-barcode-builder": "^2.0.0",
     "react-native-camera": "^3.26.0",
     "react-native-navigation": "^6.6.2",
     "react-redux": "^7.2.0",

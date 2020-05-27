@@ -25,13 +25,8 @@ export default class Test extends Component {
       <View style={styles.container}>
         <RNCamera
           style={styles.preview}
-          flashMode={
-            this.state.torchOn
-              ? RNCamera.Constants.FlashMode.on
-              : RNCamera.Constants.FlashMode.off
-          }
           onBarCodeRead={this.onBarCodeRead}
-          captureAudio
+          captureAudio={false}
           ref={(cam) => (this.camera = cam)}>
           <Text
             style={{
@@ -40,12 +35,6 @@ export default class Test extends Component {
             BARCODE SCANNER
           </Text>
         </RNCamera>
-        <View style={styles.bottomOverlay}>
-          <TouchableOpacity
-            onPress={() => this.handleTourch(this.state.torchOn)}>
-            <Image style={styles.cameraIcon} source={{uri: ''}} />
-          </TouchableOpacity>
-        </View>
       </View>
     );
   }
