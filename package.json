@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@react-native-community/art": "^1.2.0",
+    "@types/react-native-snap-carousel": "^3.8.1",
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-barcode-builder": "^2.0.0",
     "react-native-camera": "^3.26.0",
     "react-native-navigation": "^6.6.2",
+    "react-native-snap-carousel": "^3.9.1",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5"
   },
