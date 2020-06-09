@@ -1,17 +1,14 @@
-import {
-  Navigation,
-  Layout,
-  NavigationConstants,
-  LayoutComponent,
-} from 'react-native-navigation';
+import { Navigation, Layout, NavigationConstants, LayoutComponent } from 'react-native-navigation';
 // import { Provider } from 'react-redux';
 
 // import { configureStore } from '@store/storeConfig';
 // import ReduxStoreService from '@services/ReduxStoreService';
 
 import App from '../../App';
-import {Dimensions} from 'react-native';
 import Test from '../components/Test';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import ListScreen from '../components/ListScreen';
+import SettingsScreen from '../components/SettingsScreen';
 
 // const store = configureStore();
 // ReduxStoreService.setStore(store);
@@ -29,9 +26,7 @@ export default class NavigationService {
 
   constructor() {
     this.componentId = '';
-    Navigation.events().registerComponentDidAppearListener(
-      (data) => (this.componentId = data.componentId),
-    );
+    Navigation.events().registerComponentDidAppearListener((data) => (this.componentId = data.componentId));
   }
 
   push<T>(layout: Layout<T>, componentId?: string) {
@@ -76,110 +71,97 @@ export default class NavigationService {
   async registerNavigation() {
     Navigation.registerComponent('App', () => App);
     Navigation.registerComponent('Test', () => Test);
+    Navigation.registerComponent('ListScreen', () => ListScreen);
+    Navigation.registerComponent('SettingsScreen', () => SettingsScreen);
 
     Navigation.events().registerAppLaunchedListener(() => this.setRoot());
     this.constants = await Navigation.constants();
   }
 
-  // async setMenu(tags: SkillData[]) {
-  //   const size = 20;
-  //   const colorHex = '#383838';
+  async setMenu() {
+    const size = 35;
+    const colorHex = '#383838';
 
-  //   const Icons = createIconSetFromIcoMoon(configJSON, 'menu-icons', 'menu-icons.ttf');
-  //   const homeIcon = await Icons.getImageSource('home-icon', size, colorHex);
-  //   const searchIcon = await Icons.getImageSource('search-icon', size, colorHex);
-  //   const addIcon = await Icons.getImageSource('add-icon', size, colorHex);
-  //   const notificationIcon = await Icons.getImageSource('notification-icon', size, colorHex);
-  //   const profileIcon = await Icons.getImageSource('profile-icon', size, colorHex);
+    const favourite = await Icon.getImageSource('grade', size, colorHex);
+    const wallet = await Icon.getImageSource('account-balance-wallet', size, colorHex);
+    const settings = await Icon.getImageSource('settings', size, colorHex);
 
-  //   return Navigation.setRoot({
-  //     root: {
-  //       bottomTabs: {
-  //         id: 'MainTabs',
-  //         options: {
-  //           bottomTabs: {
-  //             animate: false,
-  //             titleDisplayMode: 'alwaysHide',
-  //           },
-  //         },
-  //         children: [
-  //           this.setTab('MainStack1', HomeScreen, homeIcon, '#FF3D2F', 'HomeScreenID', 'HomeScreen', { tags: tags }),
-  //           this.setTab('MainStack2', SearchScreen, searchIcon, '#FF3D2F', 'SearchScreenID', 'SearchScreen'),
-  //           this.setTab('MainStack3', AddPostScreen, addIcon, '#FF3D2F', 'AddPostScreenID', 'AddPostScreen'),
-  //           this.setTab(
-  //             'MainStack4',
-  //             NotificationScreen,
-  //             notificationIcon,
-  //             '#FF3D2F',
-  //             'NotificationScreenID',
-  //             'NotificationScreen',
-  //           ),
-  //           this.setTab('MainStack5', ProfileScreen, profileIcon, '#FF3D2F', 'ProfileScreenID', 'ProfileScreen'),
-  //         ],
-  //       },
-  //     },
-  //   });
-  // }
+    return Navigation.setRoot({
+      root: {
+        bottomTabs: {
+          id: 'MainTabs',
+          options: {
+            bottomTabs: {
+              animate: false,
+              titleDisplayMode: 'alwaysHide',
+            },
+          },
+          children: [
+            this.setTab(
+              'FavouriteStack',
+              ListScreen,
+              favourite,
+              '#1abc9c',
+              'Favourite',
+              'FavouriteScreenID',
+              'ListScreen',
+            ),
+            this.setTab('WalletStack', ListScreen, wallet, '#1abc9c', 'Cards', 'WalletScreenID', 'ListScreen'),
+            this.setTab(
+              'SettingsStack',
+              SettingsScreen,
+              settings,
+              '#1abc9c',
+              'Settings',
+              'SettingsScreenID',
+              'SettingsScreen',
+            ),
+          ],
+        },
+      },
+    });
+  }
 
-  // private setTab(
-  //   componentId: string,
-  //   component: LayoutComponent,
-  //   icon: any,
-  //   colorHex: string,
-  //   reduxId?: string,
-  //   reduxName?: string,
-  //   props?: any,
-  // ) {
-  //   return {
-  //     stack: {
-  //       id: componentId,
-  //       name: componentId + 'N',
-  //       children: [
-  //         {
-  //           component: {
-  //             id: reduxId ? reduxId : component.id,
-  //             name: reduxName ? reduxName : component.name,
-  //             passProps: props,
-  //             options: {
-  //               topBar: {
-  //                 rightButtons: [
-  //                   {
-  //                     id: 'ChatBtn1',
-  //                     component: { name: 'ChatBtn' },
-  //                   },
-  //                   {
-  //                     id: 'NavLogo1',
-  //                     component: {
-  //                       name: 'EmptySpace',
-  //                       passProps: {
-  //                         width: Dimensions.get('window').width - 235, //shitty workaround
-  //                       },
-  //                     },
-  //                   },
-  //                   {
-  //                     id: 'NavLogo1',
-  //                     component: { name: 'NavLogo' },
-  //                   },
-  //                 ],
-  //               },
-  //             },
-  //           },
-  //         },
-  //       ],
-  //       options: {
-  //         topBar: {
-  //           visible:
-  //             componentId === 'MainStack1' || componentId === 'MainStack5' || componentId === 'MainStack3'
-  //               ? true
-  //               : false,
-  //           noBorder: true,
-  //         },
-  //         bottomTab: {
-  //           icon: icon,
-  //           selectedIconColor: colorHex,
-  //         },
-  //       },
-  //     },
-  //   };
-  // }
+  private setTab(
+    componentId: string,
+    component: LayoutComponent,
+    icon: any,
+    colorHex: string,
+    text: string,
+    reduxId?: string,
+    reduxName?: string,
+    props?: any,
+  ) {
+    return {
+      stack: {
+        id: componentId,
+        name: componentId + 'N',
+        children: [
+          {
+            component: {
+              id: reduxId ? reduxId : component.id,
+              name: reduxName ? reduxName : component.name,
+              passProps: props,
+              options: {
+                topBar: {
+                  visible: true,
+                  noBorder: true,
+                  title: {
+                    text: text,
+                  },
+                },
+              },
+            },
+          },
+        ],
+        options: {
+          bottomTab: {
+            icon: icon,
+            selectedIconColor: colorHex,
+            text: text,
+          },
+        },
+      },
+    };
+  }
 }

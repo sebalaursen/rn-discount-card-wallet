@@ -10,40 +10,15 @@ import {
 import {RNCamera} from 'react-native-camera';
 
 export default class Test extends Component {
-  constructor(props) {
-    super(props);
-    this.handleTourch = this.handleTourch.bind(this);
-    this.state = {
-      torchOn: false,
-    };
-  }
-  onBarCodeRead = (e) => {
-    Alert.alert('Barcode value is' + e.data, 'Barcode type is' + e.type);
-  };
+  
   render() {
     return (
       <View style={styles.container}>
-        <RNCamera
-          style={styles.preview}
-          onBarCodeRead={this.onBarCodeRead}
-          captureAudio={false}
-          ref={(cam) => (this.camera = cam)}>
-          <Text
-            style={{
-              backgroundColor: 'white',
-            }}>
-            BARCODE SCANNER
-          </Text>
-        </RNCamera>
+        <View style={{ flex: 1, flexDirection: 'row', backgroundColor: 'red', justifyContent: 'center' }}>
+          <View style={{ height: '50%', width: '50%', backgroundColor: 'yellow' }}></View>
+        </View>
       </View>
     );
-  }
-  handleTourch(value) {
-    if (value === true) {
-      this.setState({torchOn: false});
-    } else {
-      this.setState({torchOn: true});
-    }
   }
 }
 const styles = StyleSheet.create({
