@@ -1,7 +1,7 @@
 import { Navigation, Layout, NavigationConstants, LayoutComponent } from 'react-native-navigation';
-// import { Provider } from 'react-redux';
+import { Provider } from 'react-redux';
 
-// import { configureStore } from '@store/storeConfig';
+import { configureStore } from '../store/storeConfig';
 // import ReduxStoreService from '@services/ReduxStoreService';
 
 import App from '../../App';
@@ -9,9 +9,9 @@ import Test from '../components/Test';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ListScreen from '../components/ListScreen';
 import SettingsScreen from '../components/SettingsScreen';
+import AddButton from 'src/components/shared/AddButton';
 
-// const store = configureStore();
-// ReduxStoreService.setStore(store);
+const store = configureStore();
 
 export default class NavigationService {
   static readonly shared = new NavigationService();
@@ -71,8 +71,9 @@ export default class NavigationService {
   async registerNavigation() {
     Navigation.registerComponent('App', () => App);
     Navigation.registerComponent('Test', () => Test);
-    Navigation.registerComponent('ListScreen', () => ListScreen);
+    Navigation.registerComponentWithRedux('ListScreen', () => ListScreen, Provider, store);
     Navigation.registerComponent('SettingsScreen', () => SettingsScreen);
+    Navigation.registerComponent('AddButton', () => AddButton);
 
     Navigation.events().registerAppLaunchedListener(() => this.setRoot());
     this.constants = await Navigation.constants();
@@ -105,8 +106,38 @@ export default class NavigationService {
               'Favourite',
               'FavouriteScreenID',
               'ListScreen',
+              { isFavourites: true },
             ),
-            this.setTab('WalletStack', ListScreen, wallet, '#1abc9c', 'Cards', 'WalletScreenID', 'ListScreen'),
+            this.setTab('WalletStack', ListScreen, wallet, '#1abc9c', 'Cards', 'WalletScreenID', 'ListScreen', {
+              cards: [
+                {
+                  name: 'CCC',
+                  code: '3410252482043',
+                  isFavourite: false,
+                },
+                {
+                  name: 'Fishka',
+                  code: '35253252456234633',
+                  isFavourite: false,
+                },
+                {
+                  name: 'Сільпо',
+                  code: '35253252456234633',
+                  isFavourite: false,
+                },
+                {
+                  name: '7/11',
+                  code: '3523634563442',
+                  isFavourite: false,
+                },
+                {
+                  name: 'Coffe',
+                  code: '24534523566333',
+                  isFavourite: false,
+                },
+              ],
+              isFavourites: false,
+            }),
             this.setTab(
               'SettingsStack',
               SettingsScreen,
@@ -121,6 +152,8 @@ export default class NavigationService {
       },
     });
   }
+
+  private add = Icon.getImageSource('add', 20, '#1abc9c');
 
   private setTab(
     componentId: string,
