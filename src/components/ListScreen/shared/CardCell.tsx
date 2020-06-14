@@ -27,6 +27,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginVertical: 20,
     borderRadius: 12,
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 5,
   },
   title: {
     position: 'absolute',
@@ -34,6 +40,7 @@ const styles = StyleSheet.create({
     top: 20,
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#1abc9c',
   },
   barcode_container: {
     flex: 1,
