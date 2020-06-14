@@ -6,6 +6,7 @@ const LOAD_WALLET = 'LOAD_WALLET';
 const ADD_CARD = 'ADD_CARD';
 const REMOVE_CARD = 'REMOVE_CARD';
 const EDIT_CARD = 'EDIT_CARD';
+const ERROR = 'ERROR';
 
 export interface WalletState {
   cards: Card[];
@@ -31,7 +32,11 @@ export interface EditCardAction {
   payload: [number, Card];
 }
 
-export type WalletActionTypes = LoadWalletAction | AddCardAction | RemoveCardAction | EditCardAction;
+export interface ErrorAction {
+  type: typeof ERROR;
+}
+
+export type WalletActionTypes = LoadWalletAction | AddCardAction | RemoveCardAction | EditCardAction | ErrorAction;
 
 const defaultState: WalletState = {
   cards: [],
@@ -64,63 +69,52 @@ export default function reducer(state: WalletState = defaultState, action: Walle
   }
 }
 
-export function load() {
-  return (dispatch: Dispatch<WalletActionTypes>) => {
-    return dispatch<LoadWalletAction>({
-      type: LOAD_WALLET,
-      payload: [
-        {
-          name: 'CCC',
-          code: '3410252482043',
-          isFavourite: false,
-        },
-        {
-          name: 'Fishka',
-          code: '35253252456234633',
-          isFavourite: false,
-        },
-        {
-          name: 'Сільпо',
-          code: '35253252456234633',
-          isFavourite: false,
-        },
-        {
-          name: '7/11',
-          code: '3523634563442',
-          isFavourite: false,
-        },
-        {
-          name: 'Coffe',
-          code: '24534523566333',
-          isFavourite: false,
-        },
-      ],
-    });
+export function load(): LoadWalletAction {
+  const cards: Card[] = [
+    {
+      name: 'AAA',
+      code: '3341234452354355412542',
+      isFavourite: false,
+    },
+    {
+      name: 'BBB',
+      code: '3123432354124342',
+      isFavourite: false,
+    },
+    {
+      name: 'CCC',
+      code: '432549823512345000',
+      isFavourite: false,
+    },
+  ];
+  const action: LoadWalletAction = {
+    type: LOAD_WALLET,
+    payload: cards,
   };
+  return action;
 }
 
 export function add(card: Card, cards: Card[]) {
-  return (dispatch: Dispatch<WalletActionTypes>) => {
-    if (cards.filter((ca) => ca.code === card.code || ca.name === card.name)) {
-      dispatch<AddCardAction>({ type: ADD_CARD, payload: card });
-    } else {
-      Alert.alert('Alert', 'Card with this code or name already exists in your wallet.');
-    }
-  };
+  if (
+    cards.findIndex((val) => val.code === card.code) === -1 &&
+    cards.findIndex((val) => val.name === card.name) === -1
+  ) {
+    return { type: ADD_CARD, payload: card };
+  } else {
+    Alert.alert('Alert', 'Card with this code or name already exists in your wallet.');
+    return { type: ERROR };
+  }
 }
 
 export function remove(index: number) {
-  return (dispatch: Dispatch<WalletActionTypes>) => {
-    dispatch<RemoveCardAction>({ type: REMOVE_CARD, payload: index });
-  };
+  return { type: REMOVE_CARD, payload: index };
 }
 
 export function edit(index: number, card: Card, cards: Card[]) {
-  return (dispatch: Dispatch<WalletActionTypes>) => {
-    if (cards.filter((ca) => ca.name === card.name || ca.name === card.name)) {
-      dispatch<EditCardAction>({ type: EDIT_CARD, payload: [index, card] });
-    } else {
-      Alert.alert('Alert', 'Card with this code or name already exists in your wallet.');
-    }
-  };
+  if (!cards.filter((ca) => ca.name === card.name || ca.name === card.name)) {
+    return { type: EDIT_CARD, payload: [index, card] };
+  } else {
+    Alert.alert('Alert', 'Card with this code or name already exists in your wallet.');
+    return { type: ERROR };
+  }
 }

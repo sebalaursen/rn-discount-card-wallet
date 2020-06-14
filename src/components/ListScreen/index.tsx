@@ -21,9 +21,12 @@ interface ListScreenProps {
 }
 
 interface ListScreenState {
-  currentName: string;
+  currentCard: Card;
+  currendIndex: number;
   query: string;
 }
+
+const isAndroid = Platform.OS === 'android';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -32,18 +35,25 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
     super(props);
 
     this.state = {
-      currentName: '',
+      currentCard: {
+        name: '',
+        code: '',
+        isFavourite: false,
+      },
+      currendIndex: -1,
       query: '',
     };
   }
 
-  componentDidMount() {
-    // this.props.load();
-    if (!this.props.isFavourites) {
-      this.setState({ currentName: this.props.cards[0].name });
-    }
+  componentDidUpdate() {}
 
-    Navigation.mergeOptions(this.props.componentId, {
+  componentDidMount() {
+    this.props.load();
+    //if (!this.props.isFavourites) {
+    this.setState({ currentCard: this.props.cards[0], currendIndex: 0 });
+    // }
+
+    Navigation.mergeOptions(this.props.componentId || '', {
       topBar: {
         rightButtons: [
           {
@@ -62,15 +72,37 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
   };
 
   private readonly onNameChange = (text: string) => {
-    this.setState({ currentName: text });
+    this.setState({ currentCard: { ...this.state.currentCard, name: text } });
   };
 
   private readonly onSnap = (index: number) => {
-    this.setState({ currentName: this.props.cards[index].name });
+    this.setState({ currentCard: this.props.cards[index], currendIndex: index });
+  };
+
+  private readonly editCard = () => {
+    this.props.add(
+      {
+        name: 'New card',
+        code: '041252004223',
+        isFavourite: false,
+      },
+      this.props.cards,
+    );
+  };
+
+  private readonly remove = () => {
+    this.props.remove(this.state.currendIndex);
   };
 
   private readonly renderCard = (e: { item: Card }): JSX.Element => {
-    return <CardCell width={width * 0.8} height={height * 0.55} code={e.item.code} title={e.item.name} />;
+    return (
+      <CardCell
+        width={width * 0.8}
+        height={isAndroid ? height * 0.4 : height * 0.55}
+        code={e.item.code}
+        title={e.item.name}
+      />
+    );
   };
 
   render() {
@@ -95,7 +127,7 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
             underlineColorAndroid={'transparent'}
             selectionColor={'#1abc9c'}
             onChangeText={this.onNameChange}
-            value={this.state.currentName}
+            value={this.state.currentCard.name}
             maxLength={100}
           />
           <View style={styles.search_icon}>
@@ -103,12 +135,12 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
           </View>
         </View>
         <View style={styles.btn_container}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={this.editCard}>
             <View style={styles.fav_btn}>
               <Icon name={'grade'} color={'#1abc9c'} size={40} />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={this.remove}>
             <View style={styles.fav_btn}>
               <Icon name={'delete'} color={'#1abc9c'} size={40} />
             </View>
@@ -138,7 +170,7 @@ const styles = StyleSheet.create({
   list: {
     position: 'absolute',
     height: height * 0.6,
-    bottom: 0,
+    bottom: isAndroid ? -100 : 0,
   },
   header: {
     width: width,
@@ -151,6 +183,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderBottomColor: '#1abc9c',
     borderBottomWidth: 1,
+    paddingTop: isAndroid ? -5 : 0,
   },
   search_icon: {
     position: 'absolute',
@@ -182,8 +215,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = (state: AppState): Partial<ListScreenProps> => ({});
+const mapStateToProps = (state: AppState): Partial<ListScreenProps> => ({
+  cards: state.wallet.cards,
+});
 
-const mapDispatchToProps: Partial<ListScreenProps> = {};
+const mapDispatchToProps: Partial<ListScreenProps> = {
+  load: load,
+  add: add,
+  remove: remove,
+  edit: edit,
+};
 
+// @ts-ignore
 export default connect(mapStateToProps, mapDispatchToProps)(ListScreen);
