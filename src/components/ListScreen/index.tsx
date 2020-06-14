@@ -36,7 +36,10 @@ interface ListScreenProps {
 interface ListScreenState {
   currentCard: Card;
   currendIndex: number;
+
   query: string;
+  isSearching: boolean;
+  filtered: Card[];
 }
 
 const isAndroid = Platform.OS === 'android';
@@ -56,6 +59,8 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
       },
       currendIndex: 0,
       query: '',
+      isSearching: false,
+      filtered: [],
     };
     this.props.load();
   }
@@ -103,7 +108,15 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
   };
 
   private readonly onSearchChange = (text: string) => {
-    this.setState({ query: text });
+    this.setState({
+      query: text,
+      isSearching: true,
+      filtered: this.props.cards.filter((val) => val.name.includes(text)),
+    });
+  };
+
+  private readonly onEndSearch = () => {
+    this.setState({ isSearching: false, filtered: [], query: '' });
   };
 
   private readonly onNameChange = (text: string) => {
@@ -170,6 +183,7 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
             containerStyle={styles.header}
             inputStyle={styles.search}
             onChangeText={this.onSearchChange}
+            onEndEdititng={this.onEndSearch}
             value={this.state.query}
             iconStyle={styles.search_icon}
             iconName={'search'}
@@ -210,7 +224,7 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
           </TouchableWithoutFeedback>
           <View style={styles.list}>
             <Carousel
-              data={this.props.cards}
+              data={this.state.isSearching ? this.state.filtered : this.props.cards}
               renderItem={this.renderCard}
               sliderWidth={width}
               itemWidth={width * 0.9}
