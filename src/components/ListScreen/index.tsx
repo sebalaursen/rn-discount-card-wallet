@@ -1,5 +1,16 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, TextInput, View, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  StatusBar,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import CardCell from './shared/CardCell';
 import { Navigation } from 'react-native-navigation';
@@ -8,7 +19,9 @@ import { connect } from 'react-redux';
 import { AppState } from '../../store/reducer';
 import { load, add, remove, edit } from '../../store/wallet';
 import Card from '../../models/Card';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import CustomButton from '../shared/CustomButton';
+import NavigationService from 'src/services/NavigationService';
+import Input from '../shared/Input';
 
 interface ListScreenProps {
   componentId: string;
@@ -27,10 +40,11 @@ interface ListScreenState {
 }
 
 const isAndroid = Platform.OS === 'android';
-
 const { width, height } = Dimensions.get('screen');
 
 class ListScreen extends Component<ListScreenProps, ListScreenState> {
+  private carousel: any = null;
+
   constructor(props: Readonly<ListScreenProps>) {
     super(props);
 
@@ -40,53 +54,74 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
         code: '',
         isFavourite: false,
       },
-      currendIndex: -1,
+      currendIndex: 0,
       query: '',
     };
+    this.props.load();
   }
-
-  componentDidUpdate() {}
 
   componentDidMount() {
-    this.props.load();
-    //if (!this.props.isFavourites) {
-    this.setState({ currentCard: this.props.cards[0], currendIndex: 0 });
-    // }
+    if (!this.props.isFavourites) {
+      Navigation.mergeOptions(this.props.componentId, {
+        topBar: {
+          rightButtons: [
+            {
+              id: 'rightAddBtn',
+              component: {
+                name: 'AddButton',
+                passProps: { addAction: this.openScanner },
+              },
+            },
+          ],
+        },
+      });
+    }
+  }
 
-    Navigation.mergeOptions(this.props.componentId || '', {
-      topBar: {
-        rightButtons: [
-          {
-            id: 'rightAddBtn',
-            component: {
-              name: 'AddButton',
+  private readonly openScanner = async () => {
+    await NavigationService.shared.push(
+      {
+        component: {
+          name: 'Scanner',
+          options: {
+            topBar: {
+              visible: true,
+              title: {
+                text: 'Scanner',
+              },
+              noBorder: true,
+              backButton: {
+                showTitle: false,
+                color: '#1abc9c',
+              },
             },
           },
-        ],
+        },
       },
-    });
-  }
+      this.props.componentId,
+    );
+  };
 
   private readonly onSearchChange = (text: string) => {
     this.setState({ query: text });
   };
 
   private readonly onNameChange = (text: string) => {
-    this.setState({ currentCard: { ...this.state.currentCard, name: text } });
+    const edited = { ...this.state.currentCard, name: text };
+    this.props.edit(this.state.currendIndex, edited);
+    this.setState({ currentCard: edited });
   };
 
   private readonly onSnap = (index: number) => {
     this.setState({ currentCard: this.props.cards[index], currendIndex: index });
   };
 
-  private readonly editCard = () => {
-    this.props.add(
-      {
-        name: 'New card',
-        code: '041252004223',
-        isFavourite: false,
+  private readonly favCard = () => {
+    this.setState(
+      { currentCard: { ...this.state.currentCard, isFavourite: !this.state.currentCard.isFavourite } },
+      () => {
+        this.props.edit(this.state.currendIndex, this.state.currentCard);
       },
-      this.props.cards,
     );
   };
 
@@ -94,83 +129,113 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
     this.props.remove(this.state.currendIndex);
   };
 
-  private readonly renderCard = (e: { item: Card }): JSX.Element => {
+  private readonly renderCard = (e: { item: Card; index: number }): JSX.Element => {
+    if (e.index === 0 && this.state.currentCard.code !== e.item.code && this.state.currendIndex === 0) {
+      this.setState({ currentCard: e.item, currendIndex: 0 });
+    }
     return (
       <CardCell
-        width={width * 0.8}
-        height={isAndroid ? height * 0.4 : height * 0.55}
+        width={this.props.isFavourites ? width : width * 0.9}
+        height={this.props.isFavourites ? height * 0.55 : height * (isAndroid ? 0.45 : 0.55)}
         code={e.item.code}
         title={e.item.name}
+        isVertical={this.props.isFavourites}
       />
     );
   };
 
   render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TextInput
-            style={styles.search}
-            underlineColorAndroid={'transparent'}
-            selectionColor={'#1abc9c'}
+    if (this.props.isFavourites) {
+      return (
+        <View style={styles.container}>
+          <StatusBar barStyle={'dark-content'} />
+          <View style={styles.list}>
+            <Carousel
+              data={this.props.cards.filter((card) => card.isFavourite)}
+              renderItem={this.renderCard}
+              vertical={true}
+              sliderHeight={height * 0.7}
+              itemHeight={height * 0.55}
+              onSnapToItem={this.onSnap}
+              ref={(c: any) => (this.carousel = c)}
+            />
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          <StatusBar barStyle={'dark-content'} />
+          <Input
+            containerStyle={styles.header}
+            inputStyle={styles.search}
             onChangeText={this.onSearchChange}
             value={this.state.query}
-            maxLength={100}
+            iconStyle={styles.search_icon}
+            iconName={'search'}
+            iconColorHex={'#1abc9c'}
+            iconSize={28}
           />
-          <View style={styles.search_icon}>
-            <Icon name={'search'} size={28} color={'#1abc9c'} />
-          </View>
-        </View>
-        <View style={{ ...styles.header, marginTop: 20 }}>
-          <TextInput
-            style={styles.search}
-            underlineColorAndroid={'transparent'}
-            selectionColor={'#1abc9c'}
+          <Input
+            containerStyle={{ ...styles.header, marginTop: 20 }}
+            inputStyle={styles.search}
             onChangeText={this.onNameChange}
-            value={this.state.currentCard.name}
-            maxLength={100}
+            value={this.state.currentCard?.name}
+            iconStyle={styles.search_icon}
+            iconName={'edit'}
+            iconColorHex={'#1abc9c'}
+            iconSize={28}
           />
-          <View style={styles.search_icon}>
-            <Icon name={'edit'} size={28} color={'#1abc9c'} />
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <View style={styles.btn_container}>
+              <CustomButton
+                style={
+                  this.state.currentCard.isFavourite
+                    ? { ...styles.button_style, backgroundColor: 'rgba(26, 188, 156, 0.2)' }
+                    : styles.button_style
+                }
+                iconName={'grade'}
+                iconColorHex={'#1abc9c'}
+                iconSize={40}
+                onPress={this.favCard}
+              />
+              <CustomButton
+                style={styles.button_style}
+                iconName={'delete'}
+                iconColorHex={'#1abc9c'}
+                iconSize={40}
+                onPress={this.remove}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+          <View style={styles.list}>
+            <Carousel
+              data={this.props.cards}
+              renderItem={this.renderCard}
+              sliderWidth={width}
+              itemWidth={width * 0.9}
+              onSnapToItem={this.onSnap}
+              ref={(c: any) => (this.carousel = c)}
+            />
           </View>
         </View>
-        <View style={styles.btn_container}>
-          <TouchableOpacity onPress={this.editCard}>
-            <View style={styles.fav_btn}>
-              <Icon name={'grade'} color={'#1abc9c'} size={40} />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.remove}>
-            <View style={styles.fav_btn}>
-              <Icon name={'delete'} color={'#1abc9c'} size={40} />
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.list}>
-          <Carousel
-            data={this.props.cards}
-            renderItem={this.renderCard}
-            sliderWidth={width}
-            itemWidth={width * 0.8}
-            onSnapToItem={this.onSnap}
-          />
-        </View>
-      </View>
-    );
+      );
+    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: width,
     alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: '#fff',
   },
   list: {
-    position: 'absolute',
-    height: height * 0.6,
-    bottom: isAndroid ? -100 : 0,
+    flex: 1,
+    width: width,
+    alignItems: 'center',
   },
   header: {
     width: width,
@@ -203,7 +268,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  fav_btn: {
+  button_style: {
     width: width * 0.4,
     height: '80%',
     borderRadius: 6,

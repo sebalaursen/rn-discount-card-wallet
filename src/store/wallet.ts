@@ -1,4 +1,3 @@
-import { Dispatch } from 'redux';
 import Card from '../models/Card';
 import { Alert } from 'react-native';
 
@@ -57,13 +56,14 @@ export default function reducer(state: WalletState = defaultState, action: Walle
         cards: state.cards.filter((card, index) => index !== action.payload),
       });
     case EDIT_CARD:
-      Object.assign({}, state, {
-        cards: state.cards.map((card, index) => {
+      return {
+        cards: state.cards.map((val, index) => {
           if (index === action.payload[0]) {
-            return Object.assign({}, card, action.payload[1]);
+            val = action.payload[1];
           }
+          return val;
         }),
-      });
+      };
     default:
       return state;
   }
@@ -84,6 +84,31 @@ export function load(): LoadWalletAction {
     {
       name: 'CCC',
       code: '432549823512345000',
+      isFavourite: true,
+    },
+    {
+      name: 'DDD',
+      code: '3410252482043',
+      isFavourite: false,
+    },
+    {
+      name: 'Fishka',
+      code: '35253252456234633',
+      isFavourite: true,
+    },
+    {
+      name: 'Сільпо',
+      code: '35253252456234633',
+      isFavourite: true,
+    },
+    {
+      name: '7/11',
+      code: '3523634563442',
+      isFavourite: false,
+    },
+    {
+      name: 'Coffe',
+      code: '24534523566333',
       isFavourite: false,
     },
   ];
@@ -110,11 +135,8 @@ export function remove(index: number) {
   return { type: REMOVE_CARD, payload: index };
 }
 
-export function edit(index: number, card: Card, cards: Card[]) {
-  if (!cards.filter((ca) => ca.name === card.name || ca.name === card.name)) {
-    return { type: EDIT_CARD, payload: [index, card] };
-  } else {
-    Alert.alert('Alert', 'Card with this code or name already exists in your wallet.');
-    return { type: ERROR };
-  }
+export function edit(index: number, card: Card) {
+  console.log(index);
+  console.log(card);
+  return { type: EDIT_CARD, payload: [index, card] };
 }

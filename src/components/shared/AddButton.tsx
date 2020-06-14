@@ -2,14 +2,13 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-// interface LoadingIndicatorProps {
-//   style: StyleProp<ViewStyle>;
-//   colorHex: string;
-// }
+interface AddButtonProps {
+  addAction?: () => void;
+}
 
-const AddButton = () => {
+const AddButton = (props: AddButtonProps) => {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={props.addAction}>
       <Icon color={'#1abc9c'} name={'add'} size={30} />
     </TouchableOpacity>
   );

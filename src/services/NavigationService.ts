@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import ListScreen from '../components/ListScreen';
 import SettingsScreen from '../components/SettingsScreen';
 import AddButton from 'src/components/shared/AddButton';
+import Scanner from 'src/components/ListScreen/shared/Scanner';
 
 const store = configureStore();
 
@@ -71,6 +72,7 @@ export default class NavigationService {
   async registerNavigation() {
     Navigation.registerComponent('App', () => App);
     Navigation.registerComponent('Test', () => Test);
+    Navigation.registerComponent('Scanner', () => Scanner);
     Navigation.registerComponentWithRedux('ListScreen', () => ListScreen, Provider, store);
     Navigation.registerComponent('SettingsScreen', () => SettingsScreen);
     Navigation.registerComponent('AddButton', () => AddButton);
@@ -109,33 +111,6 @@ export default class NavigationService {
               { isFavourites: true },
             ),
             this.setTab('WalletStack', ListScreen, wallet, '#1abc9c', 'Cards', 'WalletScreenID', 'ListScreen', {
-              cards: [
-                {
-                  name: 'CCC',
-                  code: '3410252482043',
-                  isFavourite: false,
-                },
-                {
-                  name: 'Fishka',
-                  code: '35253252456234633',
-                  isFavourite: false,
-                },
-                {
-                  name: 'Сільпо',
-                  code: '35253252456234633',
-                  isFavourite: false,
-                },
-                {
-                  name: '7/11',
-                  code: '3523634563442',
-                  isFavourite: false,
-                },
-                {
-                  name: 'Coffe',
-                  code: '24534523566333',
-                  isFavourite: false,
-                },
-              ],
               isFavourites: false,
             }),
             this.setTab(
