@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Alert, TouchableOpacity, Image } from 'react-native';
+import { Text, View, StyleSheet, Alert } from 'react-native';
 import { RNCamera, BarCodeType, Point, Size } from 'react-native-camera';
+import NavigationService from 'src/services/NavigationService';
 
 interface ScannerProps {
   componentId: string;
+  onScan: (code: string) => void;
 }
 
-interface ScannerState {
-  torchOn: boolean;
-}
+interface ScannerState {}
 
 type BarcodeEvent = {
   data: string;
@@ -20,23 +20,27 @@ type BarcodeEvent = {
 };
 
 export default class Scanner extends Component<ScannerProps, ScannerState> {
+  private didRead = false;
   constructor(props: ScannerProps) {
     super(props);
 
     this.state = {
-      torchOn: false,
+      didRead: false,
     };
   }
 
   onBarCodeRead = (e: BarcodeEvent) => {
-    Alert.alert('Barcode value is' + e.data, 'Barcode type is' + e.type);
+    if (!this.didRead) {
+      this.didRead = true;
+      this.props.onScan(e.data);
+    }
   };
 
   render() {
     return (
       <View style={styles.container}>
         <RNCamera style={styles.preview} onBarCodeRead={this.onBarCodeRead} captureAudio={false}>
-          <Text style={styles.text_style}>BARCODE SCANNER</Text>
+          <Text style={styles.text_style}>{'SCAN THE BARCODE ON YOUR CARD'}</Text>
         </RNCamera>
       </View>
     );

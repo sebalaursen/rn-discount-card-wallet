@@ -11,6 +11,7 @@ import ListScreen from '../components/ListScreen';
 import SettingsScreen from '../components/SettingsScreen';
 import AddButton from 'src/components/shared/AddButton';
 import Scanner from 'src/components/ListScreen/shared/Scanner';
+import PopUpName from 'src/components/shared/PopUpName';
 
 const store = configureStore();
 
@@ -39,12 +40,20 @@ export default class NavigationService {
     return Navigation.pop(this.componentId);
   }
 
-  pushModal<T>(layout: Layout<T>) {
+  async pushModal<T>(layout: Layout<T>) {
     return Navigation.showModal(layout);
   }
 
   popModal() {
     return Navigation.dismissModal(this.componentId);
+  }
+
+  async showOverlay(layout: Layout) {
+    await Navigation.showOverlay(layout);
+  }
+
+  async dismissOverlay(componentId?: string) {
+    await Navigation.dismissModal(componentId ? componentId : this.componentId);
   }
 
   setRoot() {
@@ -73,6 +82,7 @@ export default class NavigationService {
     Navigation.registerComponent('App', () => App);
     Navigation.registerComponent('Test', () => Test);
     Navigation.registerComponent('Scanner', () => Scanner);
+    Navigation.registerComponent('PopUpName', () => PopUpName);
     Navigation.registerComponentWithRedux('ListScreen', () => ListScreen, Provider, store);
     Navigation.registerComponent('SettingsScreen', () => SettingsScreen);
     Navigation.registerComponent('AddButton', () => AddButton);

@@ -1,19 +1,8 @@
 import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  Dimensions,
-  TouchableOpacity,
-  StatusBar,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
+import { Platform, StyleSheet, View, Dimensions, StatusBar, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import CardCell from './shared/CardCell';
-import { Navigation } from 'react-native-navigation';
+import { Navigation, OptionsModalPresentationStyle } from 'react-native-navigation';
 
 import { connect } from 'react-redux';
 import { AppState } from '../../store/reducer';
@@ -40,6 +29,8 @@ interface ListScreenState {
   query: string;
   isSearching: boolean;
   filtered: Card[];
+
+  isAdding: boolean;
 }
 
 const isAndroid = Platform.OS === 'android';
@@ -61,6 +52,7 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
       query: '',
       isSearching: false,
       filtered: [],
+      isAdding: false,
     };
     this.props.load();
   }
@@ -88,6 +80,7 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
       {
         component: {
           name: 'Scanner',
+          passProps: { onScan: this.onScan },
           options: {
             topBar: {
               visible: true,
@@ -104,6 +97,34 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
         },
       },
       this.props.componentId,
+    );
+  };
+
+  private readonly onScan = async (code: string) => {
+    NavigationService.shared.pop();
+    await NavigationService.shared.pushModal({
+      component: {
+        name: 'PopUpName',
+        passProps: { code: code, onSave: this.onSave },
+        options: {
+          modalPresentationStyle: OptionsModalPresentationStyle.overFullScreen,
+          layout: { componentBackgroundColor: 'rgba(0,0,0,0.2)' },
+          modal: {
+            swipeToDismiss: false,
+          },
+        },
+      },
+    });
+  };
+
+  private readonly onSave = (title: string, code: string) => {
+    this.props.add(
+      {
+        name: title,
+        code: code,
+        isFavourite: false,
+      },
+      this.props.cards,
     );
   };
 
@@ -149,7 +170,7 @@ class ListScreen extends Component<ListScreenProps, ListScreenState> {
     return (
       <CardCell
         width={this.props.isFavourites ? width : width * 0.9}
-        height={this.props.isFavourites ? height * 0.55 : height * (isAndroid ? 0.45 : 0.55)}
+        height={this.props.isFavourites ? height * 0.55 : height * (isAndroid ? 0.45 : 0.52)}
         code={e.item.code}
         title={e.item.name}
         isVertical={this.props.isFavourites}
